@@ -7,6 +7,7 @@ Tests for API endpoints, request validation, and response formats.
 import pytest
 import sys
 from pathlib import Path
+from unittest.mock import patch
 import numpy as np
 
 # Add project root to path
