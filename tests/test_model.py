@@ -10,13 +10,12 @@ import numpy as np
 from pathlib import Path
 import sys
 import tempfile
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models.train import evaluate_model, cross_validate_model, MODEL_CONFIGS
 from src.models.evaluate import (
