@@ -11,7 +11,7 @@ This module provides a complete preprocessing pipeline including:
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
 import joblib
 import logging
 
@@ -162,7 +162,7 @@ def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_outliers(
-    df: pd.DataFrame, columns: list = None, threshold: float = 3.0
+    df: pd.DataFrame, columns: Optional[List[str]] = None, threshold: float = 3.0
 ) -> pd.DataFrame:
     """
     Remove outliers using Z-score method.
@@ -188,9 +188,16 @@ def remove_outliers(
 
     removed = initial_count - len(df)
     if removed > 0:
-        logger.info(f"Removed {removed} outliers ({removed/initial_count*100:.1f}%)")
+        logger.info(f"Removed {removed} outliers ({removed / initial_count * 100:.1f}%)")
 
     return df
+
+
+def _transformed_to_dataframe(
+    data: Any, columns: List[str], index: pd.Index
+) -> pd.DataFrame:
+    """Convert sklearn transformer output back to a DataFrame."""
+    return pd.DataFrame(data, columns=columns, index=index)
 
 
 class HeartDiseasePreprocessor:
@@ -220,7 +227,9 @@ class HeartDiseasePreprocessor:
         self.is_fitted = False
         self.feature_names = None
 
-    def fit(self, X: pd.DataFrame, y: pd.Series = None) -> "HeartDiseasePreprocessor":
+    def fit(
+        self, X: pd.DataFrame, y: Optional[pd.Series] = None
+    ) -> "HeartDiseasePreprocessor":
         """
         Fit the preprocessor on training data.
 
@@ -245,8 +254,14 @@ class HeartDiseasePreprocessor:
 
         # Fit scaler on imputed data
         if self.scale_features and numeric_cols:
+            if self.scaler is None:
+                raise ValueError("Scaler is not initialized")
             X_imputed = X.copy()
-            X_imputed[numeric_cols] = self.imputer_numeric.transform(X[numeric_cols])
+            X_imputed[numeric_cols] = _transformed_to_dataframe(
+                self.imputer_numeric.transform(X[numeric_cols]),
+                numeric_cols,
+                X.index,
+            )
             self.scaler.fit(X_imputed[numeric_cols])
 
         self.is_fitted = True
@@ -274,20 +289,34 @@ class HeartDiseasePreprocessor:
 
         # Apply imputation
         if numeric_cols:
-            X[numeric_cols] = self.imputer_numeric.transform(X[numeric_cols])
+            X[numeric_cols] = _transformed_to_dataframe(
+                self.imputer_numeric.transform(X[numeric_cols]),
+                numeric_cols,
+                X.index,
+            )
 
         if categorical_cols:
-            X[categorical_cols] = self.imputer_categorical.transform(
-                X[categorical_cols]
+            X[categorical_cols] = _transformed_to_dataframe(
+                self.imputer_categorical.transform(X[categorical_cols]),
+                categorical_cols,
+                X.index,
             )
 
         # Apply scaling
         if self.scale_features and numeric_cols:
-            X[numeric_cols] = self.scaler.transform(X[numeric_cols])
+            if self.scaler is None:
+                raise ValueError("Scaler is not initialized")
+            X[numeric_cols] = _transformed_to_dataframe(
+                self.scaler.transform(X[numeric_cols]),
+                numeric_cols,
+                X.index,
+            )
 
         return X
 
-    def fit_transform(self, X: pd.DataFrame, y: pd.Series = None) -> pd.DataFrame:
+    def fit_transform(
+        self, X: pd.DataFrame, y: Optional[pd.Series] = None
+    ) -> pd.DataFrame:
         """
         Fit and transform in one step.
 
