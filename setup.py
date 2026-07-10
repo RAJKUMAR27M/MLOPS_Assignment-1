@@ -1,8 +1,6 @@
-"""
-Setup script for Heart Disease MLOps Package
-"""
+"""Packaging metadata for the heart disease MLOps assignment."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -13,35 +11,14 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="heart-disease-mlops",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="Heart Disease Prediction MLOps Project",
+    author="RAJ KUMAR M",
+    author_email="2024AD05110@WILP.BITS-PILANI.AC.IN",
+    description="Heart disease prediction MLOps assignment",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/heart-disease-mlops",
+    url="https://github.com/RAJKUMAR27M/MLOPS-Assignment",
     packages=find_packages(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Healthcare Industry",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.10",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    ],
     python_requires=">=3.10",
     install_requires=requirements,
-    entry_points={
-        "console_scripts": [
-            "download-data=src.data.download:main",
-            "train-model=src.models.train:main",
-            "preprocess-data=src.data.preprocessing:main",
-        ],
-    },
     include_package_data=True,
-    package_data={
-        "": ["*.yaml", "*.yml", "*.json"],
-    },
 )

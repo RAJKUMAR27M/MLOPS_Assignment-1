@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: heart-disease-api
+  labels:
+    app: heart-disease-api
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+spec:
+  type: LoadBalancer
+  selector:
+    app: heart-disease-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+---
+# Internal service for monitoring
+apiVersion: v1
+kind: Service
+metadata:
+  name: heart-disease-api-metrics
+  labels:
+    app: heart-disease-api
+spec:
+  type: ClusterIP
+  selector:
+    app: heart-disease-api
+  ports:
+    - name: metrics
+      port: 8000
+      targetPort: 8000
+      protocol: TCP

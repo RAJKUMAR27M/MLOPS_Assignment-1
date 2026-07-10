@@ -1,403 +1,88 @@
 # MLOps Assignment Report: Heart Disease Prediction System
 
 ## Executive Summary
+This report documents the design, development, and deployment of a complete machine learning solution for heart disease prediction. The project follows an end-to-end MLOps workflow that includes data acquisition, preprocessing, experiment tracking, model training, automated testing, containerization, deployment assets, monitoring, and documentation.
 
-This report documents the design, development, and deployment of a production-ready machine learning solution for heart disease prediction using the UCI Heart Disease dataset. The project implements modern MLOps best practices including automated CI/CD pipelines, containerization, Kubernetes deployment, and comprehensive monitoring.
+## 1. Problem Statement
+The assignment requires building a classification model that predicts heart disease risk from patient health data and demonstrating how that model can be operationalized in a production-style MLOps workflow.
 
----
+## 2. Requirement Coverage
 
-## Table of Contents
+### 2.1 Data acquisition and EDA
+The solution uses the Cleveland heart disease dataset stored in [data/raw/heart_cleveland.csv](data/raw/heart_cleveland.csv). The data loading and preprocessing workflow is implemented in [src/data/preprocessing.py](src/data/preprocessing.py), and exploratory analysis is supported by [notebooks/01_data_acquisition_eda.ipynb](notebooks/01_data_acquisition_eda.ipynb).
 
-1. [Introduction](#1-introduction)
-2. [Data Acquisition & Exploratory Data Analysis](#2-data-acquisition--exploratory-data-analysis)
-3. [Feature Engineering & Model Development](#3-feature-engineering--model-development)
-4. [Experiment Tracking](#4-experiment-tracking)
-5. [Model Packaging & Reproducibility](#5-model-packaging--reproducibility)
-6. [CI/CD Pipeline & Automated Testing](#6-cicd-pipeline--automated-testing)
-7. [Model Containerization](#7-model-containerization)
-8. [Production Deployment](#8-production-deployment)
-9. [Monitoring & Logging](#9-monitoring--logging)
-10. [Conclusion](#10-conclusion)
+Key activities included:
+- Loading the dataset from a reproducible source
+- Checking missing values and data quality
+- Reviewing target distribution and feature behavior
+- Preparing the dataset for modelling
 
----
+Visual evidence:
+- ![Target distribution](screenshots/target_distribution.png)
+- ![Correlation heatmap](screenshots/correlation_heatmap.png)
+- ![Missing values analysis](screenshots/missing_values.png)
 
-## 1. Introduction
+### 2.2 Feature engineering and model development
+The preprocessing module defines the feature structure and prepares the data for modelling. The training workflow in [src/models/train.py](src/models/train.py) trains multiple classification algorithms and evaluates them using standard metrics.
 
-### 1.1 Problem Statement
+Models included:
+- Logistic regression
+- Random forest
+- Gradient boosting
+- Support vector machine
 
-Build a machine learning classifier to predict the risk of heart disease based on patient health data, and deploy the solution as a cloud-ready, monitored API.
+The model training pipeline produces evaluation metrics and saves the final model artifacts for inference.
 
-### 1.2 Dataset Overview
+### 2.3 Experiment tracking
+The training workflow integrates MLflow to log parameters, metrics, and artifacts. The experiment history is stored under [mlruns](mlruns), which allows comparative review of training runs.
 
-- **Source**: UCI Machine Learning Repository
-- **Features**: 14 clinical attributes (age, sex, blood pressure, cholesterol, etc.)
-- **Target**: Binary classification (presence/absence of heart disease)
-- **Samples**: ~303 patients (Cleveland dataset)
+### 2.4 Packaging and reproducibility
+The trained model and preprocessor are saved in [models/final_model.joblib](models/final_model.joblib) and [models/preprocessor.joblib](models/preprocessor.joblib). The environment is documented through [requirements.txt](requirements.txt) and [setup.py](setup.py).
 
-### 1.3 Project Architecture
+### 2.5 CI/CD and automated testing
+The repository contains automated tests in [tests/test_api.py](tests/test_api.py), [tests/test_data_processing.py](tests/test_data_processing.py), and [tests/test_model.py](tests/test_model.py). A GitHub Actions workflow is provided in [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) to automate linting, testing, training, and Docker build tasks.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         GitHub Repository                        │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐            │
-│  │   EDA   │  │ Training│  │  Tests  │  │ Configs │            │
-│  │Notebooks│  │ Scripts │  │         │  │         │            │
-│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘            │
-└───────┼────────────┼────────────┼────────────┼──────────────────┘
-        │            │            │            │
-        └────────────┴────────────┴────────────┘
-                            │
-                    ┌───────▼───────┐
-                    │GitHub Actions │
-                    │   CI/CD       │
-                    └───────┬───────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-   ┌────▼────┐        ┌─────▼────┐        ┌────▼────┐
-   │  Lint   │        │   Test   │        │  Build  │
-   │  Check  │        │  (Pytest)│        │ (Docker)│
-   └────┬────┘        └────┬─────┘        └────┬────┘
-        │                  │                   │
-        └──────────────────┼───────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │   Deploy    │
-                    │ (Kubernetes)│
-                    └──────┬──────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-   ┌────▼────┐       ┌─────▼────┐       ┌────▼────┐
-   │ FastAPI │       │Prometheus│       │ Grafana │
-   │   API   │       │ Metrics  │       │Dashboard│
-   └─────────┘       └──────────┘       └─────────┘
-```
+### 2.6 Containerization
+The API is containerized using [Dockerfile](Dockerfile), and container composition is defined in [docker-compose.yml](docker-compose.yml).
 
----
+### 2.7 Deployment
+Production-style deployment assets are included in [deployment/kubernetes/deployment.yaml](deployment/kubernetes/deployment.yaml), [deployment/kubernetes/service.yaml](deployment/kubernetes/service.yaml), and [deployment/kubernetes/ingress.yaml](deployment/kubernetes/ingress.yaml), along with a Helm chart in [deployment/helm/heart-disease-api](deployment/helm/heart-disease-api).
 
-## 2. Data Acquisition & Exploratory Data Analysis
+### 2.8 Monitoring and logging
+The service includes request logging and Prometheus-compatible metrics in [src/api/main.py](src/api/main.py). Monitoring configuration is available in [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml) and [monitoring/grafana](monitoring/grafana).
 
-### 2.1 Data Acquisition
+### 2.9 Documentation and reporting
+The repository includes project documentation in [README.md](README.md), this report in [REPORT.md](REPORT.md), and a concise submission summary in [GITHUB_SUBMISSION_SUMMARY.md](GITHUB_SUBMISSION_SUMMARY.md).
 
-The dataset was downloaded from the UCI Machine Learning Repository using an automated script (`src/data/download.py`).
+## 3. Visual Evidence
+- ![Categorical distributions](screenshots/categorical_distributions.png)
+- ![Numeric distributions](screenshots/numeric_distributions.png)
+- ![Target correlation](screenshots/target_correlation.png)
+- ![Pairplot](screenshots/pairplot.png)
 
-```python
-# Download command
-python -m src.data.download
-```
-
-### 2.2 Data Quality Assessment
-
-| Metric | Value |
-|--------|-------|
-| Total Samples | 303 |
-| Features | 13 |
-| Missing Values | ~2% (in ca, thal) |
-| Duplicates | 0 |
-
-### 2.3 Target Distribution
-
-| Class | Count | Percentage |
-|-------|-------|------------|
-| No Disease (0) | 138 | 45.5% |
-| Disease (1) | 165 | 54.5% |
-
-**Conclusion**: The dataset is moderately balanced.
-
-### 2.4 Key EDA Findings
-
-1. **Age Distribution**: Patients with heart disease tend to be older (mean: 56.6 vs 52.5)
-2. **Chest Pain Type (cp)**: Strong predictor - Type 3 (asymptomatic) highly correlated with disease
-3. **Maximum Heart Rate (thalach)**: Lower values indicate higher disease risk
-4. **Exercise-Induced Angina (exang)**: Significant risk factor
-5. **ST Depression (oldpeak)**: Higher values associated with disease
-
-### 2.5 Visualizations
-
-*[Insert screenshots from notebooks/01_data_acquisition_eda.ipynb]*
-
-- Target distribution pie chart
-- Feature correlation heatmap
-- Distribution plots by target class
-- Box plots for numeric features
-
----
-
-## 3. Feature Engineering & Model Development
-
-### 3.1 Feature Preprocessing
-
-| Feature Type | Processing |
-|--------------|------------|
-| Numeric (age, trestbps, chol, thalach, oldpeak) | StandardScaler normalization |
-| Categorical (sex, cp, fbs, restecg, exang, slope, ca, thal) | Kept as-is (already encoded) |
-| Missing Values | Median imputation (numeric), Mode imputation (categorical) |
-
-### 3.2 Models Trained
-
-1. **Logistic Regression**: Baseline linear model
-2. **Random Forest**: Ensemble tree-based model
-3. **Gradient Boosting**: Sequential boosting model
-4. **Support Vector Machine**: Kernel-based classifier
-
-### 3.3 Hyperparameter Tuning
-
-GridSearchCV with 5-fold stratified cross-validation was used for all models.
-
-**Best Parameters (Random Forest)**:
-- n_estimators: 100
-- max_depth: 10
-- min_samples_split: 5
-
-### 3.4 Model Performance Comparison
-
-| Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
-|-------|----------|-----------|--------|----------|---------|
-| Logistic Regression | 0.85 | 0.84 | 0.88 | 0.86 | 0.90 |
-| **Random Forest** | **0.87** | **0.86** | **0.90** | **0.88** | **0.92** |
-| Gradient Boosting | 0.86 | 0.85 | 0.89 | 0.87 | 0.91 |
-| SVM | 0.84 | 0.83 | 0.87 | 0.85 | 0.89 |
-
-**Selected Model**: Random Forest (highest ROC-AUC)
-
----
-
-## 4. Experiment Tracking
-
-### 4.1 MLflow Integration
-
-All experiments were tracked using MLflow with the following logged artifacts:
-
-- **Parameters**: Model type, hyperparameters, training samples
-- **Metrics**: Accuracy, precision, recall, F1, ROC-AUC
-- **Artifacts**: Confusion matrices, ROC curves, feature importance plots
-- **Models**: Serialized sklearn models
-
-### 4.2 MLflow UI
+## 4. Verification
+The repository was verified locally with the following command:
 
 ```bash
-# Start MLflow UI
-mlflow ui --host 0.0.0.0 --port 5000
+pytest -q
 ```
 
-*[Insert MLflow UI screenshot]*
+Observed result:
+- 60 tests passed
+- 1 warning
 
-### 4.3 Experiment Runs Summary
-
-| Run ID | Model | ROC-AUC | Status |
-|--------|-------|---------|--------|
-| abc123 | Logistic Regression | 0.90 | Completed |
-| def456 | Random Forest | 0.92 | Completed |
-| ghi789 | Gradient Boosting | 0.91 | Completed |
-| jkl012 | SVM | 0.89 | Completed |
-
----
-
-## 5. Model Packaging & Reproducibility
-
-### 5.1 Model Artifacts
-
-```
-models/
-├── final_model.joblib      # Best trained model
-└── preprocessor.joblib     # Fitted preprocessor pipeline
-```
-
-### 5.2 Environment Reproducibility
-
+## 5. How to Run
 ```bash
-# Create environment
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-
-# Install dependencies
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-### 5.3 Full Pipeline Execution
-
-```bash
-# 1. Download data
-python -m src.data.download
-
-# 2. Train models
 python -m src.models.train
-
-# 3. Start API
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000
 ```
 
----
+## 6. Conclusion
+The project satisfies the assignment requirement for a complete MLOps solution by combining model development, experiment tracking, testing, containerization, deployment readiness, monitoring, and documentation into one structured repository.
 
-## 6. CI/CD Pipeline & Automated Testing
-
-### 6.1 GitHub Actions Workflow
-
-```yaml
-# .github/workflows/ci-cd.yml
-Jobs:
-1. lint      - Code quality checks (Black, Flake8)
-2. test      - Unit tests with pytest
-3. train     - Model training
-4. build     - Docker image build
-5. security  - Vulnerability scanning
-6. deploy    - Kubernetes deployment
-```
-
-### 6.2 Test Coverage
-
-```
-tests/
-├── test_data_processing.py  # 15 tests
-├── test_model.py            # 18 tests
-└── test_api.py              # 20 tests
-```
-
-**Total Tests**: 53
-**Coverage**: ~85%
-
-### 6.3 Pipeline Status
-
-*[Insert GitHub Actions screenshot showing successful pipeline]*
-
----
-
-## 7. Model Containerization
-
-### 7.1 Dockerfile
-
-Multi-stage build optimized for production:
-
-```dockerfile
-# Build stage
-FROM python:3.10-slim as builder
-# ... install dependencies
-
-# Production stage
-FROM python:3.10-slim as production
-# ... copy only necessary files
-```
-
-### 7.2 Docker Commands
-
-```bash
-# Build image
-docker build -t heart-disease-api:latest .
-
-# Run container
-docker run -p 8000:8000 heart-disease-api:latest
-
-# Test endpoint
-curl http://localhost:8000/health
-```
-
-### 7.3 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | API information |
-| `/health` | GET | Health check |
-| `/predict` | POST | Single prediction |
-| `/predict/batch` | POST | Batch predictions |
-| `/metrics` | GET | Prometheus metrics |
-| `/docs` | GET | Swagger documentation |
-
-### 7.4 Sample Request/Response
-
-**Request**:
-```json
-{
-  "age": 63, "sex": 1, "cp": 3, "trestbps": 145,
-  "chol": 233, "fbs": 1, "restecg": 0, "thalach": 150,
-  "exang": 0, "oldpeak": 2.3, "slope": 0, "ca": 0, "thal": 1
-}
-```
-
-**Response**:
-```json
-{
-  "prediction": 1,
-  "probability": 0.85,
-  "risk_level": "High",
-  "model_version": "1.0.0",
-  "confidence": 0.85
-}
-```
-
----
-
-## 8. Production Deployment
-
-### 8.1 Kubernetes Architecture
-
-```
-┌─────────────────────────────────────────┐
-│              Kubernetes Cluster          │
-│  ┌─────────────────────────────────────┐│
-│  │           Ingress Controller         ││
-│  └─────────────┬───────────────────────┘│
-│                │                         │
-│  ┌─────────────▼───────────────────────┐│
-│  │         Service (LoadBalancer)       ││
-│  └─────────────┬───────────────────────┘│
-│                │                         │
-│  ┌─────────────▼───────────────────────┐│
-│  │   Deployment (3 replicas)            ││
-│  │  ┌─────┐  ┌─────┐  ┌─────┐          ││
-│  │  │Pod 1│  │Pod 2│  │Pod 3│          ││
-│  │  └─────┘  └─────┘  └─────┘          ││
-│  └─────────────────────────────────────┘│
-└─────────────────────────────────────────┘
-```
-
-### 8.2 Deployment Commands
-
-```bash
-# Apply manifests
-kubectl apply -f deployment/kubernetes/
-
-# Check status
-kubectl get pods -l app=heart-disease-api
-
-# Get external IP
-kubectl get svc heart-disease-api
-```
-
-### 8.3 Deployment Verification
-
-*[Insert kubectl get pods screenshot]*
-*[Insert successful API response screenshot]*
-
----
-
-## 9. Monitoring & Logging
-
-### 9.1 Prometheus Metrics
-
-| Metric | Type | Description |
-|--------|------|-------------|
-| `prediction_requests_total` | Counter | Total prediction requests |
-| `prediction_request_latency_seconds` | Histogram | Request latency |
-| `prediction_distribution_total` | Counter | Predictions by class/risk |
-
-### 9.2 Grafana Dashboard
-
-*[Insert Grafana dashboard screenshot]*
-
-Dashboard panels:
-- Total predictions
-- Error rate
-- P95 latency
-- Prediction distribution by risk level
-- Request rate over time
-
-### 9.3 Logging
-
-Structured JSON logging with fields:
-- timestamp
-- level
-- request_id
 - endpoint
 - latency_ms
 - prediction
@@ -425,7 +110,7 @@ Structured JSON logging with fields:
 
 ### 10.3 Repository Link
 
-**GitHub**: [https://github.com/yourusername/heart-disease-mlops](https://github.com/yourusername/heart-disease-mlops)
+**GitHub**: [https://github.com/RAJKUMAR27M/MLOPS-Assignment](https://github.com/RAJKUMAR27M/MLOPS-Assignment)
 
 ---
 
@@ -464,6 +149,6 @@ MLops_Assignment/
 
 ---
 
-**Report Prepared By**: [Your Name]
-**Date**: [Current Date]
+**Report Prepared By**: RAJ KUMAR M
+**Date**: [06/07/2026]
 **Version**: 1.0

@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: heart-disease-api-ingress
+  labels:
+    app: heart-disease-api
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: heart-disease-api.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heart-disease-api
+                port:
+                  number: 80
+    # Wildcard for local testing
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heart-disease-api
+                port:
+                  number: 80
+---
+# Optional: TLS configuration for production
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: heart-disease-api-ingress-tls
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+# spec:
+#   ingressClassName: nginx
+#   tls:
+#     - hosts:
+#         - heart-disease-api.yourdomain.com
+#       secretName: heart-disease-api-tls
+#   rules:
+#     - host: heart-disease-api.yourdomain.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: heart-disease-api
+#                 port:
+#                   number: 80
