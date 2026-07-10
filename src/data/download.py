@@ -5,7 +5,6 @@ This script downloads the Heart Disease dataset from UCI Machine Learning Reposi
 and saves it to the data/raw directory.
 """
 
-import os
 import requests
 import pandas as pd
 from pathlib import Path

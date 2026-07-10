@@ -8,13 +8,12 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import tempfile
 import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.data.preprocessing import (
+from src.data.preprocessing import (  # noqa: E402
     HeartDiseasePreprocessor,
     handle_missing_values,
     analyze_data_quality,

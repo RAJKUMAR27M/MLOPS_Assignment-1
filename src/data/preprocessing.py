@@ -16,10 +16,8 @@ import joblib
 import logging
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
 
 # Configure logging
 logging.basicConfig(
@@ -437,7 +435,7 @@ def main():
 
     # Analyze data quality
     quality_report = analyze_data_quality(df)
-    logger.info(f"\nData Quality Report:")
+    logger.info("\nData Quality Report:")
     logger.info(f"Total samples: {quality_report['total_samples']}")
     logger.info(f"Missing values: {sum(quality_report['missing_values'].values())}")
     logger.info(f"Duplicates: {quality_report['duplicates']}")

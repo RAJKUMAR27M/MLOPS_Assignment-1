@@ -23,17 +23,16 @@ from starlette.responses import Response
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.api.schemas import (
+from src.api.schemas import (  # noqa: E402
     HeartDiseaseInput,
     PredictionResponse,
     BatchPredictionInput,
     BatchPredictionResponse,
     HealthResponse,
     ModelInfoResponse,
-    ErrorResponse,
     RiskLevel,
 )
-from src.data.preprocessing import HeartDiseasePreprocessor
+from src.data.preprocessing import HeartDiseasePreprocessor  # noqa: E402
 
 # Configure logging
 logging.basicConfig(
@@ -132,13 +131,13 @@ app = FastAPI(
     title="Heart Disease Prediction API",
     description="""
     A machine learning API for predicting heart disease risk based on patient health data.
-    
+
     ## Features
     - Single patient prediction
     - Batch prediction
     - Health monitoring
     - Prometheus metrics
-    
+
     ## Model Information
     The API uses a trained classification model on the UCI Heart Disease dataset.
     """,

@@ -7,15 +7,14 @@ Tests for API endpoints, request validation, and response formats.
 import pytest
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch
 import numpy as np
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi.testclient import TestClient
-from src.api.main import app, get_risk_level, prepare_input
-from src.api.schemas import (
+from fastapi.testclient import TestClient  # noqa: E402
+from src.api.main import app, get_risk_level, prepare_input  # noqa: E402
+from src.api.schemas import (  # noqa: E402
     HeartDiseaseInput,
     PredictionResponse,
     HealthResponse,

@@ -5,7 +5,6 @@ This module trains classification models for heart disease prediction
 with comprehensive experiment tracking using MLflow.
 """
 
-import os
 import sys
 import logging
 from pathlib import Path
@@ -37,12 +36,11 @@ import seaborn as sns
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.data.preprocessing import (
+from src.data.preprocessing import (  # noqa: E402
     load_raw_data,
     prepare_data,
     HeartDiseasePreprocessor,
     handle_missing_values,
-    TARGET_COLUMN,
 )
 
 # Configure logging
@@ -525,7 +523,7 @@ def main():
 
     X_train, X_test, y_train, y_test, preprocessor = prepare_data(df)
 
-    logger.info(f"\nDataset statistics:")
+    logger.info("\nDataset statistics:")
     logger.info(f"  Training samples: {len(X_train)}")
     logger.info(f"  Test samples: {len(X_test)}")
     logger.info(f"  Features: {X_train.shape[1]}")
@@ -549,14 +547,14 @@ def main():
     logger.info("=" * 60)
     logger.info(f"\nBest Model: {best_model_name}")
     if best_metrics:
-        logger.info(f"Test Metrics:")
+        logger.info("Test Metrics:")
         for metric, value in best_metrics.items():
             if isinstance(value, (int, float)):
                 logger.info(f"  {metric}: {value:.4f}")
 
-    logger.info(f"\nArtifacts saved to: models/")
-    logger.info(f"MLflow runs saved to: mlruns.db")
-    logger.info(f"\nTo view MLflow UI, run: mlflow ui --host 0.0.0.0 --port 5000")
+    logger.info("\nArtifacts saved to: models/")
+    logger.info("MLflow runs saved to: mlruns.db")
+    logger.info("\nTo view MLflow UI, run: mlflow ui --host 0.0.0.0 --port 5000")
 
 
 if __name__ == "__main__":

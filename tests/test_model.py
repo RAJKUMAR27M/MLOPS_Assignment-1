@@ -17,8 +17,8 @@ from sklearn.metrics import accuracy_score
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.models.train import evaluate_model, cross_validate_model, MODEL_CONFIGS
-from src.models.evaluate import (
+from src.models.train import evaluate_model, cross_validate_model, MODEL_CONFIGS  # noqa: E402
+from src.models.evaluate import (  # noqa: E402
     compute_all_metrics,
     compute_specificity,
     find_optimal_threshold,
